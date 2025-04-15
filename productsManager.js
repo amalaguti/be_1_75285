@@ -1,32 +1,32 @@
-const fs = require('fs')
+const fs = require('fs');
 const path = require('path');
 
 const pathProductos = path.join(__dirname, 'productos.json');
 
-function getProducts() {
-    const productos = fs.readFileSync(pathProductos, 'utf-8');
+async function getProducts() {
+    const productos = await fs.promises.readFile(pathProductos, 'utf-8');
     return JSON.parse(productos);
 }
 
-function getProductById(pid) {
-    const productos = getProducts();
-    return productos.find(producto => producto.id === pid)
+async function getProductById(pid) {
+    const productos = await getProducts();
+    return productos.find(producto => producto.id === pid);
 }
 
-function addProduct(product) {
-    const productos = getProducts();
+async function addProduct(product) {
+    const productos = await getProducts();
     productos.push(product);
     fs.writeFileSync(pathProductos, JSON.stringify(productos));
 }
 
-function updateProduct(pid, updated) {
-    const productos = getProducts();
+async function updateProduct(pid, updated) {
+    const productos = await getProducts();
     productos[pid - 1] = updated;
     fs.writeFileSync(pathProductos, JSON.stringify(productos));
 }
 
-function deleteProduct(pid) {
-    let productos = getProducts();
+async function deleteProduct(pid) {
+    let productos = await getProducts();
     productos = productos.filter(product => product.id !== pid);
     fs.writeFileSync(pathProductos, JSON.stringify(productos));
 }
@@ -37,4 +37,4 @@ module.exports = {
     addProduct,
     updateProduct,
     deleteProduct
-}
+};

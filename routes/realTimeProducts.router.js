@@ -27,6 +27,13 @@ export const initSocket = (httpServer) => {
     // Socket.IO connection event
     io.on('connection', (socket) => {
         console.log('New user connected');
+
+        // Handle product actions
+        socket.on('productAction', (data) => {
+            console.log('Product action received:', data);
+            console.log(`Product ID: ${data.id}`);
+            console.log(`Action: ${data.action}`);
+        });
     });
 };
 

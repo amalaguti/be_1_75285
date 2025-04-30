@@ -1,4 +1,3 @@
-
 <link rel="stylesheet" href="/css/style.css">
 <body>
     <h1>Real Time Products - {{title}}</h1>
@@ -15,6 +14,7 @@
                 <p class="stock">Stock: {{this.stock}}</p>
                 <p class="category">Category: {{this.category}}</p>
                 <p>Thumbnails: {{this.thumbnails}}</p>
+                <button onclick="hideProduct('{{this.id}}')">Hide Product</button>
             </div>
         {{/each}}
     </div>
@@ -24,5 +24,13 @@
     <script>
         // Connect to Socket.IO server
         const socket = io();
+
+        // Function to handle hide product button click
+        function hideProduct(productId) {
+            socket.emit('productAction', {
+                id: productId,
+                action: 'hide'
+            });
+        }
     </script>
 </body>

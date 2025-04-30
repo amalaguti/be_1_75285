@@ -1,10 +1,20 @@
-const express = require('express');
+import express from 'express';
+import { getProducts } from '../products/productsManager.js';
+
 const router = express.Router();
 
-const productsManager = require('../products/productsManager.js');
-
-
 // GET /api/realtimeproducts
-router.get('/', async (req, res) => {res.status(200).send('Websockets');});
+router.get('/', async (req, res) => {
+    try {
+        const productos = await getProducts();
+        res.render('realTimeProducts', { 
+            title: 'Products List',
+            productos: productos 
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        res.status(500).json({ error: 'Error fetching products' });
+    }
+});
 
-module.exports = router;
+export default router;

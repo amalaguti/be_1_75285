@@ -1,7 +1,15 @@
-const path = require('path');
+import path from 'path';
+import express from 'express';
+import handlebars from 'express-handlebars';
+import { getProducts } from './products/productsManager.js';
+import realTimeProductsRouter from './routes/realTimeProducts.router.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Express
-const express = require('express')
 const app = express()
 const port = 3000
 app.use(express.json());
@@ -11,22 +19,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // handlebars
-const handlebars = require('express-handlebars');
 app.engine('handlebars', handlebars.engine());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'handlebars');
 
-// Import productsManager
-const productsManager = require('./products/productsManager.js');
-
-// Routes
-const realTimeProductsRouter = require('./routes/realTimeProducts.router.js');
 
 
 // Home shows all products
 app.get('/', async (req, res) => {
     try {
-        const productos = await productsManager.getProducts();
+        const productos = await getProducts();
         res.render("home", { 
             title: "Entrega 2",
             productos: productos

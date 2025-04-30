@@ -1,3 +1,18 @@
+<link rel="stylesheet" href="/css/style.css">
+
 <h1>{{title}}</h1>
-<br>
-<hr>
+<div class="products-container">
+    {{#each productos}}
+        <div class="product-card">
+            <h3>{{this.title}}</h3>
+            <p>ID: {{this.id}}</p>
+            <p>Description: {{this.description}}</p>
+            <p>Code: {{this.code}}</p>
+            <p class="price">Price: ${{this.price}}</p>
+            <p>Status: {{this.status}}</p>
+            <p class="stock">Stock: {{this.stock}}</p>
+            <p class="category">Category: {{this.category}}</p>
+            <p>Thumbnails: {{this.thumbnails}}</p>
+        </div>
+    {{/each}}
+</div>

@@ -2,9 +2,10 @@ import path from 'path';
 import express from 'express';
 import handlebars from 'express-handlebars';
 import { getProducts } from './products/productsManager.js';
-import realTimeProductsRouter from './routes/realTimeProducts.router.js';
+import realTimeProductsRouter, { initSocket } from './routes/realTimeProducts.router.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createServer } from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,8 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.engine('handlebars', handlebars.engine());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'handlebars');
-
-
 
 // Home shows all products
 app.get('/', async (req, res) => {
@@ -46,11 +45,13 @@ app.get('/custom_layout', (req, res) => {
     });
 });
 
-
 // /api/realtimeproducts uses websockets
 app.use('/api/realtimeproducts', realTimeProductsRouter);
 
+// Create HTTP server and initialize Socket.IO
+const httpServer = createServer(app);
+initSocket(httpServer);
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 });

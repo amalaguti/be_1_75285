@@ -1,19 +1,35 @@
-<link rel="stylesheet" href="/css/style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Real Time Products - {{title}}</h1>
+    <h2> WebSockets implementation </h2>
+    <div class="products-container">
+        {{#each productos}}
+            <div class="product-card">
+                <h3>{{this.title}}</h3>
+                <p>ID: {{this.id}}</p>
+                <p>Description: {{this.description}}</p>
+                <p>Code: {{this.code}}</p>
+                <p class="price">Price: ${{this.price}}</p>
+                <p>Status: {{this.status}}</p>
+                <p class="stock">Stock: {{this.stock}}</p>
+                <p class="category">Category: {{this.category}}</p>
+                <p>Thumbnails: {{this.thumbnails}}</p>
+            </div>
+        {{/each}}
+    </div>
 
-<h1>Real Time Products - {{title}}</h1>
-<h2> WebSockets implementation </h2>
-<div class="products-container">
-    {{#each productos}}
-        <div class="product-card">
-            <h3>{{this.title}}</h3>
-            <p>ID: {{this.id}}</p>
-            <p>Description: {{this.description}}</p>
-            <p>Code: {{this.code}}</p>
-            <p class="price">Price: ${{this.price}}</p>
-            <p>Status: {{this.status}}</p>
-            <p class="stock">Stock: {{this.stock}}</p>
-            <p class="category">Category: {{this.category}}</p>
-            <p>Thumbnails: {{this.thumbnails}}</p>
-        </div>
-    {{/each}}
-</div>
+    <!-- Add Socket.IO client script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Connect to Socket.IO server
+        const socket = io();
+    </script>
+</body>
+</html>

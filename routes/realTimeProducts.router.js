@@ -1,5 +1,6 @@
 import express from 'express';
 import { getProducts } from '../products/productsManager.js';
+import { Server } from 'socket.io';
 
 const router = express.Router();
 
@@ -16,5 +17,17 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Error fetching products' });
     }
 });
+
+// Socket.IO setup
+let io;
+
+export const initSocket = (httpServer) => {
+    io = new Server(httpServer);
+    
+    // Socket.IO connection event
+    io.on('connection', (socket) => {
+        console.log('New user connected');
+    });
+};
 
 export default router;

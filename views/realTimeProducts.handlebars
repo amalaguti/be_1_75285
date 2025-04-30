@@ -2,7 +2,7 @@
 <body>
     <h1>Real Time Products - {{title}}</h1>
     <h2> WebSockets implementation </h2>
-    <div class="products-container">
+    <div class="products-container" id="productsContainer">
         {{#each productos}}
             <div class="product-card">
                 <h3>{{this.title}}</h3>
@@ -32,5 +32,30 @@
                 action: 'hide'
             });
         }
+
+        // Function to update the products display
+        function updateProductsDisplay(products) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <h3>${product.title}</h3>
+                    <p>ID: ${product.id}</p>
+                    <p>Description: ${product.description}</p>
+                    <p>Code: ${product.code}</p>
+                    <p class="price">Price: $${product.price}</p>
+                    <p>Status: ${product.status}</p>
+                    <p class="stock">Stock: ${product.stock}</p>
+                    <p class="category">Category: ${product.category}</p>
+                    <p>Thumbnails: ${product.thumbnails}</p>
+                    <button onclick="hideProduct('${product.id}')">Hide Product</button>
+                </div>
+            `).join('');
+        }
+
+        // Listen for products updates
+        socket.on('productsUpdated', (products) => {
+            console.log('client received updates', products)
+            updateProductsDisplay(products);
+        });
     </script>
 </body>

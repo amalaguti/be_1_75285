@@ -48,10 +48,7 @@ async function addProductToCart(cartId, productId) {
     }
 }
 
-// Example usage:
-// const newCart = createCart();
-// console.log('New cart:', newCart);
-// 
+
 const cartId = 1; // Replace with actual cart ID
 const productId = 1; // Replace with actual product ID
 (async () => {

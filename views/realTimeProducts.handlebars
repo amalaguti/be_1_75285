@@ -3,6 +3,7 @@
     <h1>Real Time Products - {{title}}</h1>
     <h2> WebSockets implementation </h2>
     <div class="button-container">
+        <button onclick="openAddProductModal()" class="add-product-btn">Add New Product</button>
         <button onclick="unhideAllProducts()" class="unhide-all-btn">Unhide All Products</button>
     </div>
     <div class="products-container" id="productsContainer">
@@ -22,14 +23,65 @@
         {{/each}}
     </div>
 
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddProductModal()">&times;</span>
+            <h2>Add New Product</h2>
+            <form id="addProductForm" onsubmit="handleAddProduct(event)">
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="code">Code:</label>
+                    <input type="text" id="code" name="code" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <input type="text" id="category" name="category" required>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnails">Thumbnails (comma separated):</label>
+                    <input type="text" id="thumbnails" name="thumbnails">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Add Product</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Add Socket.IO client script -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Connect to Socket.IO server
         const socket = io();
+        let newProducts = []; // Array to store new products
 
         // Function to handle hide product button click
         function hideProduct(productId) {
+            // Remove from newProducts array if it exists there
+            newProducts = newProducts.filter(product => String(product.id) !== String(productId));
+            
+            // Emit the hide action to the server
             socket.emit('productAction', {
                 id: productId,
                 action: 'hide'
@@ -38,15 +90,69 @@
 
         // Function to handle unhide all products
         function unhideAllProducts() {
+            // Clear the newProducts array
+            newProducts = [];
+            
+            // Emit the unhideAll action to the server
             socket.emit('productAction', {
                 action: 'unhideAll'
             });
         }
 
+        // Modal functions
+        function openAddProductModal() {
+            document.getElementById('addProductModal').style.display = 'block';
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addProductModal');
+            if (event.target == modal) {
+                closeAddProductModal();
+            }
+        }
+
+        // Handle form submission
+        function handleAddProduct(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const newProduct = {
+                id: Date.now().toString(), // Generate a unique ID
+                title: formData.get('title'),
+                description: formData.get('description'),
+                code: formData.get('code'),
+                price: parseFloat(formData.get('price')),
+                status: formData.get('status') === 'true',
+                stock: parseInt(formData.get('stock')),
+                category: formData.get('category'),
+                thumbnails: formData.get('thumbnails').split(',').map(url => url.trim())
+            };
+
+            // Add to new products array
+            newProducts.push(newProduct);
+
+            // Emit the new product to the server
+            socket.emit('productAction', {
+                action: 'add',
+                product: newProduct
+            });
+
+            // Close modal and reset form
+            closeAddProductModal();
+            event.target.reset();
+        }
+
         // Function to update the products display
         function updateProductsDisplay(products) {
             const container = document.getElementById('productsContainer');
-            container.innerHTML = products.map(product => `
+            // Combine products from server with new products
+            const allProducts = [...products, ...newProducts];
+            container.innerHTML = allProducts.map(product => `
                 <div class="product-card">
                     <h3>${product.title}</h3>
                     <p>ID: ${product.id}</p>
@@ -64,7 +170,7 @@
 
         // Listen for products updates
         socket.on('productsUpdated', (products) => {
-            console.log('client received updates', products)
+            console.log('client received updates', products);
             updateProductsDisplay(products);
         });
     </script>

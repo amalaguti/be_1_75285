@@ -68,6 +68,15 @@ export const initSocket = (httpServer) => {
                 } catch (error) {
                     console.error('Error unhiding products:', error.message);
                 }
+            } else if (data.action === 'add') {
+                try {
+                    const productos = await getProducts();
+                    // Just emit the original products list
+                    // The client will handle adding the new product
+                    io.emit('productsUpdated', productos);
+                } catch (error) {
+                    console.error('Error adding product:', error.message);
+                }
             }
         });
     });

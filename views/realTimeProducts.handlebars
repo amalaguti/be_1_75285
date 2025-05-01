@@ -15,7 +15,7 @@
                 <p>Code: {{this.code}}</p>
                 <p class="price">Price: ${{this.price}}</p>
                 <p>Status: {{this.status}}</p>
-                <p class="stock">Stock: {{this.stock}}</p>
+                <p class="stock">Stock: {{#if this.stock}}{{this.stock}}{{else}}0{{/if}}</p>
                 <p class="category">Category: {{this.category}}</p>
                 <p>Thumbnails: {{this.thumbnails}}</p>
                 <button onclick="hideProduct('{{this.id}}')">Hide Product</button>
@@ -128,7 +128,7 @@
                 code: formData.get('code'),
                 price: parseFloat(formData.get('price')),
                 status: formData.get('status') === 'true',
-                stock: parseInt(formData.get('stock')),
+                stock: formData.get('stock') ? parseInt(formData.get('stock')) : 0, // Default to 0 if empty
                 category: formData.get('category'),
                 thumbnails: formData.get('thumbnails').split(',').map(url => url.trim())
             };
@@ -150,8 +150,11 @@
         // Function to update the products display
         function updateProductsDisplay(products) {
             const container = document.getElementById('productsContainer');
-            // Combine products from server with new products
-            const allProducts = [...products, ...newProducts];
+            // Combine products from server with new products and ensure stock has a default value
+            const allProducts = [...products, ...newProducts].map(product => ({
+                ...product,
+                stock: product.stock !== undefined ? product.stock : 0
+            }));
             container.innerHTML = allProducts.map(product => `
                 <div class="product-card">
                     <h3>${product.title}</h3>

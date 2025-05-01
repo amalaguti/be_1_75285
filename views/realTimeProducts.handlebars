@@ -2,6 +2,9 @@
 <body>
     <h1>Real Time Products - {{title}}</h1>
     <h2> WebSockets implementation </h2>
+    <div class="button-container">
+        <button onclick="unhideAllProducts()" class="unhide-all-btn">Unhide All Products</button>
+    </div>
     <div class="products-container" id="productsContainer">
         {{#each productos}}
             <div class="product-card">
@@ -30,6 +33,13 @@
             socket.emit('productAction', {
                 id: productId,
                 action: 'hide'
+            });
+        }
+
+        // Function to handle unhide all products
+        function unhideAllProducts() {
+            socket.emit('productAction', {
+                action: 'unhideAll'
             });
         }
 

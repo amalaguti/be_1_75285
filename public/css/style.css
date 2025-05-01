@@ -56,4 +56,24 @@ h1 {
 .product-card .category {
     font-style: italic;
     color: #7f8c8d;
+}
+
+.button-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.unhide-all-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s;
+}
+
+.unhide-all-btn:hover {
+    background-color: #2980b9;
 } 

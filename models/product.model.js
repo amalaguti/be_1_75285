@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 // Define the Product Collection
 const productsCollection = 'productos';
@@ -14,6 +14,5 @@ const productSchema = new mongoose.Schema({
     category: String,
     thumbnails: [String]
 });
-
 
 export const productModel = mongoose.model(productsCollection, productSchema);

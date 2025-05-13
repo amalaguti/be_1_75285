@@ -19,42 +19,6 @@ export const connectDB = async () => {
 };
 
 
-// Define the User Schema
-const userSchema = new mongoose.Schema({
-    nombre: String,
-    apellido: String,
-    email: {
-        type: String,
-        unique: true,
-    }
-});
-
-// Define the Product Schema
-const productSchema = new mongoose.Schema({
-    id: Number,
-    title: String,
-    description: String,
-    code: String,
-    price: Number,
-    status: Boolean,
-    category: String,
-    thumbnails: [String]
-});
-
-// Create the models
-const User = mongoose.model('usuarios', userSchema);
-const Product = mongoose.model('productos', productSchema);
-
-async function getAllUsers() {
-    try {
-        const users = await User.find({});
-        return users;
-    } catch (error) {
-        console.error('Error retrieving users:', error);
-        throw error;
-    }
-}
-
 async function getAllProducts() {
     try {
         const products = await Product.find({});

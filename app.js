@@ -6,6 +6,10 @@ import realTimeProductsRouter, { initSocket } from './routes/realTimeProducts.ro
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createServer } from 'http';
+import { connectDB, uri, clientOptions } from './mongodb/db.js';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,6 +27,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.engine('handlebars', handlebars.engine());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'handlebars');
+
+
+// Connect to MongoDB
+console.log('>>>>>> Connecting to MongoDB');
+console.log(uri);
+console.log(clientOptions);
+connectDB();
+
+
 
 // Home shows all products
 app.get('/', async (req, res) => {

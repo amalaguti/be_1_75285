@@ -1,7 +1,23 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
+
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
+
+
 const uri = `mongodb+srv://${process.env.mongodb_user}:${process.env.mongodb_secret}@cluster0.nbmyio1.mongodb.net/entregaFinal?retryWrites=true&w=majority&appName=Cluster0`;
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
+
+
+export const connectDB = async () => {
+  try {
+    await mongoose.connect(uri, clientOptions);
+    console.log('>>>>>> DB connected');
+  } catch (err) {
+    console.error('>>>> DB connection error:', err);
+    process.exit(1);
+  }
+};
+
 
 // Define the User Schema
 const userSchema = new mongoose.Schema({
@@ -127,6 +143,7 @@ async function main() {
 }
 
 // Run everything
-main().catch(console.dir);
+// main().catch(console.dir);
 
-module.exports = { uri }; 
+
+export { uri, clientOptions };

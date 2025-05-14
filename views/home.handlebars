@@ -1,5 +1,15 @@
 <link rel="stylesheet" href="/css/style.css">
 
+<style>
+.add-to-cart-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.7;
+    border: 1px solid #999999;
+}
+</style>
+
 <h1>{{title}}</h1>
 
 <div class="controls-container">
@@ -75,7 +85,7 @@
             <p class="stock">Stock: {{#if this.stock}}{{this.stock}}{{else}}0{{/if}}</p>
             <p class="category">Category: {{this.category}}</p>
             <p>Thumbnails: {{this.thumbnails}}</p>
-            <button onclick="addToCart('{{this._id}}', {{#if this.stock}}{{this.stock}}{{else}}0{{/if}})" 
+            <button onclick="handleProductClick('{{this._id}}', {{#if this.stock}}{{this.stock}}{{else}}0{{/if}}, '{{this.title}}')" 
                     class="add-to-cart-btn" 
                     {{#unless this.stock}}disabled{{/unless}}>
                 {{#if this.stock}}Add to Cart{{else}}Out of Stock{{/if}}
@@ -103,15 +113,19 @@
 {{/if}}
 
 <script>
-async function addToCart(productId, stock) {
+function handleProductClick(productId, stock, title) {
     // Convert stock to number and handle undefined/null
     stock = Number(stock) || 0;
     
     if (stock < 1) {
-        alert('Sorry, this product is out of stock');
+        alert(`Sorry, "${title}" cannot be added to cart - Product is out of stock`);
         return;
     }
 
+    addToCart(productId, stock);
+}
+
+async function addToCart(productId, stock) {
     try {
         // First, try to find an existing cart or create a new one
         const cartResponse = await fetch('/api/carts', {

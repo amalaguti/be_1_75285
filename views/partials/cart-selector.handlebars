@@ -1,0 +1,30 @@
+<div class="cart-selector">
+    <select id="cartSelector" class="cart-select">
+        <option value="">Select a Cart</option>
+        {{#each carts}}
+            <option value="{{this._id}}">Cart {{@index}}</option>
+        {{/each}}
+    </select>
+    <button onclick="createNewCart()" class="new-cart-btn">Create New Cart</button>
+</div>
+
+<script>
+async function createNewCart() {
+    try {
+        const response = await fetch('/api/carts', {
+            method: 'POST'
+        });
+        if (response.ok) {
+            const cart = await response.json();
+            const select = document.getElementById('cartSelector');
+            const option = document.createElement('option');
+            option.value = cart._id;
+            option.text = `Cart ${select.options.length}`;
+            select.add(option);
+            select.value = cart._id;
+        }
+    } catch (error) {
+        console.error('Error creating cart:', error);
+    }
+}
+</script> 

@@ -4,15 +4,27 @@ import { productModel } from '../models/products.model.js';
 
 const router = express.Router();
 
-// Get cart or create if doesn't exist
+// Get all carts
 router.get('/', async (req, res) => {
     try {
-        // For now, we'll work with a single cart. In a real app, this would be tied to a user session
-        let cart = await cartModel.findOne({}).populate('products.product').lean();
+        const carts = await cartModel.find().populate('products.product').lean();
+        res.render('carts', {
+            title: 'All Shopping Carts',
+            carts: carts
+        });
+    } catch (error) {
+        console.error('Error retrieving carts:', error);
+        res.status(500).json({ error: 'Error retrieving carts' });
+    }
+});
+
+// Get specific cart by ID
+router.get('/:cid', async (req, res) => {
+    try {
+        const cart = await cartModel.findById(req.params.cid).populate('products.product').lean();
         
         if (!cart) {
-            cart = await cartModel.create({ products: [] });
-            cart = await cart.populate('products.product');
+            return res.status(404).json({ error: 'Cart not found' });
         }
 
         res.render('cart', {
@@ -25,25 +37,36 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Add product to cart
-router.post('/add/:productId', async (req, res) => {
+// Create new cart
+router.post('/', async (req, res) => {
     try {
-        const productId = req.params.productId;
-        const product = await productModel.findById(productId);
+        const newCart = await cartModel.create({ products: [] });
+        res.status(201).json(newCart);
+    } catch (error) {
+        console.error('Error creating cart:', error);
+        res.status(500).json({ error: 'Error creating cart' });
+    }
+});
+
+// Add product to cart
+router.post('/:cid/product/:pid', async (req, res) => {
+    try {
+        const { cid, pid } = req.params;
+        const product = await productModel.findById(pid);
         
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        let cart = await cartModel.findOne({});
+        let cart = await cartModel.findById(cid);
         
         if (!cart) {
-            cart = await cartModel.create({ products: [] });
+            return res.status(404).json({ error: 'Cart not found' });
         }
 
         // Check if product already exists in cart
         const existingProduct = cart.products.find(item => 
-            item.product.toString() === productId
+            item.product.toString() === pid
         );
 
         if (existingProduct) {
@@ -61,11 +84,11 @@ router.post('/add/:productId', async (req, res) => {
                     error: 'Product is out of stock'
                 });
             }
-            cart.products.push({ product: productId, quantity: 1 });
+            cart.products.push({ product: pid, quantity: 1 });
         }
 
         await cart.save();
-        res.redirect('/api/carts');
+        res.redirect(`/api/carts/${cid}`);
     } catch (error) {
         console.error('Error adding to cart:', error);
         res.status(500).json({ error: 'Error adding to cart' });
@@ -73,15 +96,17 @@ router.post('/add/:productId', async (req, res) => {
 });
 
 // Remove product from cart
-router.delete('/remove/:productId', async (req, res) => {
+router.delete('/:cid/product/:pid', async (req, res) => {
     try {
-        const cart = await cartModel.findOne({});
+        const { cid, pid } = req.params;
+        const cart = await cartModel.findById(cid);
+        
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
 
         cart.products = cart.products.filter(item => 
-            item.product.toString() !== req.params.productId
+            item.product.toString() !== pid
         );
 
         await cart.save();
@@ -92,16 +117,18 @@ router.delete('/remove/:productId', async (req, res) => {
     }
 });
 
-// Update product quantity
-router.put('/update/:productId', async (req, res) => {
+// Update product quantity in cart
+router.put('/:cid/product/:pid', async (req, res) => {
     try {
+        const { cid, pid } = req.params;
         const { quantity } = req.body;
+        
         if (quantity < 1) {
             return res.status(400).json({ error: 'Quantity must be at least 1' });
         }
 
         // First check product stock
-        const product = await productModel.findById(req.params.productId);
+        const product = await productModel.findById(pid);
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
@@ -113,13 +140,13 @@ router.put('/update/:productId', async (req, res) => {
             });
         }
 
-        const cart = await cartModel.findOne({});
+        const cart = await cartModel.findById(cid);
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
 
         const cartProduct = cart.products.find(item => 
-            item.product.toString() === req.params.productId
+            item.product.toString() === pid
         );
 
         if (!cartProduct) {
@@ -133,6 +160,20 @@ router.put('/update/:productId', async (req, res) => {
     } catch (error) {
         console.error('Error updating cart:', error);
         res.status(500).json({ error: 'Error updating cart' });
+    }
+});
+
+// Delete cart
+router.delete('/:cid', async (req, res) => {
+    try {
+        const cart = await cartModel.findByIdAndDelete(req.params.cid);
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+        res.json({ message: 'Cart deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting cart:', error);
+        res.status(500).json({ error: 'Error deleting cart' });
     }
 });
 

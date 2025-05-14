@@ -2,6 +2,8 @@
 
 <h1>{{title}}</h1>
 
+{{> cart-selector}}
+
 <div class="controls-container">
     <!-- Filters -->
     <div class="filters">
@@ -75,9 +77,7 @@
             <p class="stock">Stock: {{this.stock}}</p>
             <p class="category">Category: {{this.category}}</p>
             <p>Thumbnails: {{this.thumbnails}}</p>
-            <form action="/api/carts/add/{{this._id}}" method="POST">
-                <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-            </form>
+            <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn">Add to Cart</button>
         </div>
     {{/each}}
 </div>
@@ -101,6 +101,32 @@
 {{/if}}
 
 <script>
+async function addToCart(productId) {
+    const cartSelect = document.getElementById('cartSelector');
+    const cartId = cartSelect.value;
+    
+    if (!cartId) {
+        alert('Please select or create a cart first');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            window.location.href = `/api/carts/${cartId}`;
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error adding product to cart');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding product to cart');
+    }
+}
+
 function clearFilters() {
     document.getElementById('category').value = '';
     document.getElementById('minPrice').value = '';

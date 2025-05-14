@@ -1,5 +1,6 @@
 import express from 'express';
 import { productModel } from '../models/products.model.js';
+import { cartModel } from '../models/cart.model.js';
 
 const router = express.Router();
 
@@ -34,6 +35,9 @@ router.get('/', async (req, res) => {
             filterOptions.status = req.query.status === 'true';
         }
 
+        // Get all carts for the selector
+        const carts = await cartModel.find().lean();
+
         // Execute query with all parameters
         const products = await productModel.find(filterOptions)
             .sort(sortOptions)
@@ -55,6 +59,7 @@ router.get('/', async (req, res) => {
         res.render("home", { 
             title: "Entrega Final",
             productos: products,
+            carts: carts,
             pagination: {
                 currentPage: page,
                 totalPages,

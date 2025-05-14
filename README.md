@@ -46,14 +46,12 @@ A Node.js e-commerce backend project built with Express.js and MongoDB. Features
 - `GET /api/products/:id` - Get a specific product
 - `POST /api/products` - Create a new product
 - `PUT /api/products/:id` - Update a product
-- `DELETE /api/products/:id` - Delete a product
 
 ### Cart (`/api/carts`)
 - `GET /api/carts` - View shopping cart
 - `POST /api/carts/add/:productId` - Add product to cart
   - Validates stock availability
   - Prevents exceeding available stock
-- `DELETE /api/carts/remove/:productId` - Remove product from cart
 - `PUT /api/carts/update/:productId` - Update product quantity in cart
   - Validates against available stock
   - Body: `{ "quantity": number }`
@@ -81,6 +79,10 @@ mongodb_secret=your_password
 ```
 
 3. Run the application:
+```bash
+npx nodemon app.js
+```
+or 
 ```bash
 npm run dev
 ```

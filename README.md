@@ -9,6 +9,8 @@ A Node.js e-commerce backend project built with Express.js and MongoDB. Features
 - Shopping cart with stock validation
 - MongoDB integration
 - Handlebars templating
+- Advanced filtering and sorting
+- Pagination support
 
 ## Dependencies
 
@@ -31,6 +33,16 @@ A Node.js e-commerce backend project built with Express.js and MongoDB. Features
 
 ### Products (`/api/products`)
 - `GET /api/products` - View all products
+  - Query Parameters:
+    - `page`: Page number (default: 1)
+    - `limit`: Items per page (default: 10)
+    - `sort`: Sort field (title, price, stock)
+    - `order`: Sort order (asc, desc)
+    - `category`: Filter by category
+    - `minPrice`: Minimum price filter
+    - `maxPrice`: Maximum price filter
+    - `stock`: Filter by stock ("available" shows in-stock items)
+    - `status`: Filter by status (true/false)
 - `GET /api/products/:id` - Get a specific product
 - `POST /api/products` - Create a new product
 - `PUT /api/products/:id` - Update a product
@@ -39,8 +51,12 @@ A Node.js e-commerce backend project built with Express.js and MongoDB. Features
 ### Cart (`/api/carts`)
 - `GET /api/carts` - View shopping cart
 - `POST /api/carts/add/:productId` - Add product to cart
+  - Validates stock availability
+  - Prevents exceeding available stock
 - `DELETE /api/carts/remove/:productId` - Remove product from cart
 - `PUT /api/carts/update/:productId` - Update product quantity in cart
+  - Validates against available stock
+  - Body: `{ "quantity": number }`
 
 ### Real-time Products (`/api/realtimeproducts`)
 - `GET /api/realtimeproducts` - View products with real-time updates via WebSocket
@@ -82,6 +98,8 @@ npm run dev
 ### Product Management
 - Complete CRUD operations for products
 - Stock tracking
+- Advanced filtering and sorting capabilities
+- Pagination for large product lists
 
 ### Shopping Cart
 - Add/remove products
@@ -94,27 +112,55 @@ npm run dev
 - WebSocket integration for real-time product updates
 - Live product list updates
 
+### Filtering and Sorting
+- Filter products by:
+  - Category
+  - Price range
+  - Stock availability
+  - Status
+- Sort products by:
+  - Title
+  - Price
+  - Stock
+- Ascending or descending order
+- Pagination with configurable items per page
+
 ## Project Structure
 
 ```
 ├── models/
-│   ├── products.model.js
-│   └── cart.model.js
+│   ├── products.model.js  # Product schema and model
+│   └── cart.model.js      # Cart schema and model
 ├── routes/
-│   ├── products.router.js
-│   ├── cart.router.js
-│   └── realTimeProducts.router.js
+│   ├── products.router.js    # Product routes with filtering
+│   ├── cart.router.js        # Cart management routes
+│   └── realTimeProducts.router.js  # WebSocket routes
 ├── views/
-│   ├── home.handlebars
-│   └── cart.handlebars
+│   ├── home.handlebars    # Product listing with filters
+│   └── cart.handlebars    # Cart view
 ├── public/
 │   └── css/
-│       └── style.css
+│       └── style.css      # Styles including filter UI
 ├── mongodb/
-│   └── db.js
-├── app.js
+│   └── db.js             # Database connection
+├── app.js                # Main application file
 └── README.md
+
 ```
+
+## Example Queries
+
+Filter and sort products:
+```
+/api/products?category=electronics&minPrice=100&maxPrice=500&sort=price&order=desc&page=1&limit=10
+```
+
+This will:
+- Show electronics products
+- Price between $100 and $500
+- Sort by price (highest first)
+- Show first page
+- 10 items per page
 
 ## Package Descriptions
 

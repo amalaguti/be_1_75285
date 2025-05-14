@@ -22,6 +22,10 @@
 .cart-controls {
     text-align: right;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
 }
 
 .check-cart-btn {
@@ -36,6 +40,15 @@
 .check-cart-btn:hover {
     background-color: #1976D2;
 }
+
+.cart-id-display {
+    color: #666;
+    font-size: 0.9em;
+    padding: 5px 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
 </style>
 
 <h1>{{title}}</h1>
@@ -44,6 +57,7 @@
 
 <div class="controls-container">
     <div class="cart-controls">
+        <span id="cartIdDisplay" class="cart-id-display"></span>
         <a href="/api/carts" class="check-cart-btn">Check Cart</a>
     </div>
     <!-- Filters -->
@@ -180,6 +194,9 @@ async function addToCart(productId, stock, title) {
 
         const cart = await cartResponse.json();
         
+        // Update cart ID display
+        document.getElementById('cartIdDisplay').textContent = `Cart ID: ${cart._id}`;
+        
         // Now add the product to the cart
         const response = await fetch(`/api/carts/${cart._id}/product/${productId}`, {
             method: 'POST'
@@ -197,6 +214,22 @@ async function addToCart(productId, stock, title) {
     }
 }
 
+// Function to get and display current cart ID on page load
+async function displayCurrentCartId() {
+    try {
+        const response = await fetch('/api/carts', {
+            method: 'POST'  // This will get existing cart or create new one
+        });
+        
+        if (response.ok) {
+            const cart = await response.json();
+            document.getElementById('cartIdDisplay').textContent = `Cart ID: ${cart._id}`;
+        }
+    } catch (error) {
+        console.error('Error getting cart ID:', error);
+    }
+}
+
 function clearFilters() {
     document.getElementById('category').value = '';
     document.getElementById('minPrice').value = '';
@@ -208,8 +241,11 @@ function clearFilters() {
     document.getElementById('filterForm').submit();
 }
 
-// Preserve filter parameters in pagination links
+// Call this when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    displayCurrentCartId();
+    
+    // Existing pagination code
     const paginationLinks = document.querySelectorAll('.pagination a');
     paginationLinks.forEach(link => {
         const url = new URL(link.href);

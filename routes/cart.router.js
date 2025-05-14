@@ -177,6 +177,66 @@ router.put('/:cid/product/:pid', async (req, res) => {
     }
 });
 
+// Update all products in cart
+router.put('/:cid', async (req, res) => {
+    try {
+        const { cid } = req.params;
+        const { products } = req.body;
+
+        // Validate input
+        if (!Array.isArray(products)) {
+            return res.status(400).json({ error: 'Products must be an array' });
+        }
+
+        // Find the cart
+        const cart = await cartModel.findById(cid);
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+
+        // Validate each product and check stock
+        for (const item of products) {
+            if (!item.product || !item.quantity) {
+                return res.status(400).json({ 
+                    error: 'Each product must have product ID and quantity' 
+                });
+            }
+
+            if (item.quantity < 1) {
+                return res.status(400).json({ 
+                    error: 'Quantity must be at least 1' 
+                });
+            }
+
+            // Check if product exists and has enough stock
+            const product = await productModel.findById(item.product);
+            if (!product) {
+                return res.status(404).json({ 
+                    error: `Product ${item.product} not found` 
+                });
+            }
+
+            if (item.quantity > product.stock) {
+                return res.status(400).json({ 
+                    error: `Cannot update quantity for ${product.title}. Only ${product.stock} available in stock.` 
+                });
+            }
+        }
+
+        // Update cart with new products array
+        cart.products = products;
+        await cart.save();
+
+        res.json({ 
+            message: 'Cart updated successfully',
+            cart: await cartModel.findById(cid).populate('products.product')
+        });
+    } catch (error) {
+        console.error('Error updating cart:', error);
+        res.status(500).json({ error: 'Error updating cart' });
+    }
+});
+
 // Delete cart
 router.delete('/:cid', async (req, res) => {
     try {

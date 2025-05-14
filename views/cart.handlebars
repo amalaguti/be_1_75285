@@ -4,6 +4,16 @@
 
 <div id="error-message" class="error-message" style="display: none;"></div>
 
+<div class="cart-header">
+    <div class="cart-header-left">
+        <a href="/api/products" class="continue-shopping-btn">← Continue Shopping</a>
+        <div class="cart-id-display">Cart ID: {{cart._id}}</div>
+    </div>
+    {{#if cart.products.length}}
+        <button onclick="emptyCart('{{cart._id}}')" class="empty-cart-btn">Empty Cart</button>
+    {{/if}}
+</div>
+
 <div class="cart-container">
     {{#if cart.products.length}}
         <input type="hidden" id="cartId" value="{{cart._id}}">
@@ -29,6 +39,63 @@
         <p>Your cart is empty</p>
     {{/if}}
 </div>
+
+<style>
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.cart-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.continue-shopping-btn {
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.continue-shopping-btn:hover {
+    background-color: #45a049;
+}
+
+.cart-id-display {
+    color: #666;
+    font-size: 0.9em;
+    padding: 5px 10px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.empty-cart-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.empty-cart-btn:hover {
+    background-color: #c82333;
+}
+</style>
 
 <script>
 function showError(message) {
@@ -79,5 +146,28 @@ function updateQuantity(productId, newQuantity) {
         window.location.reload();
     })
     .catch(error => showError(error.message || 'Error updating quantity'));
+}
+
+function emptyCart(cartId) {
+    if (!confirm('Are you sure you want to empty your cart? This action cannot be undone.')) {
+        return;
+    }
+
+    fetch(`/api/carts/${cartId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ products: [] })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
+        }
+        window.location.reload();
+    })
+    .catch(error => showError(error.message || 'Error emptying cart'));
 }
 </script> 

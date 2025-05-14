@@ -88,14 +88,19 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get product by ID
-router.get('/:id', async (req, res) => {
+// Get specific product by ID
+router.get('/:pid', async (req, res) => {
     try {
-        const product = await productModel.findOne({ id: req.params.id });
+        const product = await productModel.findById(req.params.pid).lean();
+        
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
-        res.json(product);
+
+        res.render('product-detail', {
+            title: product.title,
+            product: product
+        });
     } catch (error) {
         console.error('Error retrieving product:', error);
         res.status(500).json({ error: 'Error retrieving product' });
@@ -115,10 +120,10 @@ router.post('/', async (req, res) => {
 });
 
 // Update product
-router.put('/:id', async (req, res) => {
+router.put('/:pid', async (req, res) => {
     try {
-        const updatedProduct = await productModel.findOneAndUpdate(
-            { id: req.params.id },
+        const updatedProduct = await productModel.findByIdAndUpdate(
+            req.params.pid,
             req.body,
             { new: true }
         );
@@ -133,9 +138,9 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete product
-router.delete('/:id', async (req, res) => {
+router.delete('/:pid', async (req, res) => {
     try {
-        const deletedProduct = await productModel.findOneAndDelete({ id: req.params.id });
+        const deletedProduct = await productModel.findByIdAndDelete(req.params.pid);
         if (!deletedProduct) {
             return res.status(404).json({ error: 'Product not found' });
         }

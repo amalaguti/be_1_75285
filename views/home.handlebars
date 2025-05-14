@@ -49,6 +49,16 @@
     border-radius: 4px;
     border: 1px solid #ddd;
 }
+
+.product-title-link {
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.product-title-link:hover {
+    color: #3498db;
+}
 </style>
 
 <h1>{{title}}</h1>
@@ -124,7 +134,7 @@
 <div class="products-container">
     {{#each productos}}
         <div class="product-card">
-            <h3>{{this.title}}</h3>
+            <h3><a href="/api/products/{{this._id}}" class="product-title-link">{{this.title}}</a></h3>
             <p>Code: {{this.code}}</p>
             <p>Description: {{this.description}}</p>
             <p class="price">Price: ${{this.price}}</p>

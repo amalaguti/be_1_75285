@@ -1,0 +1,168 @@
+<link rel="stylesheet" href="/css/style.css">
+
+<div id="success-message" class="success-message" style="display: none;"></div>
+
+<div class="product-detail-container">
+    <div class="navigation-header">
+        <a href="/api/products" class="back-btn">← Back to Products</a>
+    </div>
+
+    <div class="product-detail-card">
+        <h1>{{product.title}}</h1>
+        <p class="code">Code: {{product.code}}</p>
+        <p class="description">{{product.description}}</p>
+        <p class="price">Price: ${{product.price}}</p>
+        <p class="status">Status: {{product.status}}</p>
+        <p class="stock">Stock: {{#if product.stock}}{{product.stock}}{{else}}0{{/if}}</p>
+        <p class="category">Category: {{product.category}}</p>
+        {{#if product.thumbnails}}
+            <p class="thumbnails">Thumbnails: {{product.thumbnails}}</p>
+        {{/if}}
+        
+        <button onclick="handleProductClick('{{product._id}}', {{#if product.stock}}{{product.stock}}{{else}}0{{/if}}, '{{product.title}}')" 
+                class="add-to-cart-btn" 
+                {{#unless product.stock}}disabled{{/unless}}>
+            {{#if product.stock}}Add to Cart{{else}}Out of Stock{{/if}}
+        </button>
+    </div>
+</div>
+
+<style>
+.product-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.navigation-header {
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #1976D2;
+}
+
+.product-detail-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-detail-card h1 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.product-detail-card p {
+    margin: 15px 0;
+    font-size: 1.1em;
+    color: #666;
+}
+
+.product-detail-card .price {
+    font-size: 1.4em;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.product-detail-card .stock {
+    color: #3498db;
+}
+
+.product-detail-card .description {
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin: 20px 0;
+}
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+    display: none;
+}
+
+.add-to-cart-btn {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+.add-to-cart-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.7;
+    border: 1px solid #999999;
+}
+</style>
+
+<script>
+function showSuccess(message) {
+    const successDiv = document.getElementById('success-message');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 3000);
+}
+
+function handleProductClick(productId, stock, title) {
+    // Convert stock to number and handle undefined/null
+    stock = Number(stock) || 0;
+    
+    if (stock < 1) {
+        alert(`Sorry, "${title}" cannot be added to cart - Product is out of stock`);
+        return;
+    }
+
+    addToCart(productId, stock, title);
+}
+
+async function addToCart(productId, stock, title) {
+    try {
+        // First, try to find an existing cart or create a new one
+        const cartResponse = await fetch('/api/carts', {
+            method: 'POST'
+        });
+
+        if (!cartResponse.ok) {
+            throw new Error('Error creating/getting cart');
+        }
+
+        const cart = await cartResponse.json();
+        
+        // Now add the product to the cart
+        const response = await fetch(`/api/carts/${cart._id}/product/${productId}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            showSuccess(`"${title}" added to cart successfully!`);
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error adding product to cart');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding product to cart');
+    }
+}
+</script> 

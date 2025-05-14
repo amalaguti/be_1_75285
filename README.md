@@ -1,33 +1,46 @@
-# E-commerce Backend Project
+# E-commerce Backend Application
 
-A Node.js e-commerce backend project built with Express.js and MongoDB. Features product management, real-time product updates, and shopping cart functionality.
+This is a Node.js/Express application that implements e-commerce functionality with MongoDB as the database.
 
 ## Features
 
-- Product management (CRUD operations)
+### Products
+- Complete CRUD operations for products
+- View all products with pagination
+- Filter products by:
+  - Category
+  - Price range
+  - Stock availability
+  - Status (active/inactive)
+- Sort products by:
+  - Title
+  - Price
+  - Stock
+- View detailed product information on individual product pages
 - Real-time product updates using WebSocket
-- Shopping cart with stock validation
-- MongoDB integration
-- Handlebars templating
-- Advanced filtering and sorting
-- Pagination support
+- Stock tracking
 
-## Dependencies
+### Cart
+- Automatic cart creation
+- Add/remove products
+- Update quantities
+- Empty entire cart
+- Stock validation when adding/updating products
+- Cart total calculation
+- Cart persistence in database
+- Quantity limits based on available stock
 
-```json
-{
-  "dependencies": {
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "express-handlebars": "^8.0.1",
-    "mongoose": "^8.14.3",
-    "socket.io": "^4.8.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
-}
-```
+### Navigation & UI
+- Product list pagination
+- Category filtering
+- Price range filtering
+- Back to products navigation
+- Cart view access
+- Individual product detail pages
+- Responsive design
+- Interactive UI elements
+- Real-time stock validation
+- Success/error messaging
 
 ## Routes
 
@@ -43,89 +56,70 @@ A Node.js e-commerce backend project built with Express.js and MongoDB. Features
     - `maxPrice`: Maximum price filter
     - `stock`: Filter by stock ("available" shows in-stock items)
     - `status`: Filter by status (true/false)
-- `GET /api/products/:id` - Get a specific product
-- `POST /api/products` - Create a new product
-- `PUT /api/products/:id` - Update a product
+- `GET /api/products/:pid` - Get specific product details
+- `POST /api/products` - Create new product
+- `PUT /api/products/:pid` - Update product
+- `DELETE /api/products/:pid` - Delete product
 
 ### Cart (`/api/carts`)
-- `GET /api/carts` - View shopping cart
-- `POST /api/carts/add/:productId` - Add product to cart
+- `GET /api/carts` - View cart
+- `GET /api/carts/:cid` - View specific cart
+- `POST /api/carts` - Create new cart or get existing one
+- `POST /api/carts/:cid/product/:pid` - Add product to cart
   - Validates stock availability
   - Prevents exceeding available stock
-- `PUT /api/carts/update/:productId` - Update product quantity in cart
+- `PUT /api/carts/:cid/product/:pid` - Update product quantity in cart
   - Validates against available stock
   - Body: `{ "quantity": number }`
+- `PUT /api/carts/:cid` - Update all products in cart
+- `DELETE /api/carts/:cid/product/:pid` - Remove product from cart
+- `DELETE /api/carts/:cid` - Delete cart
 
 ### Real-time Products (`/api/realtimeproducts`)
 - `GET /api/realtimeproducts` - View products with real-time updates via WebSocket
 
-### Legacy Routes
-- `GET /entrega2` - View products from file system (legacy feature)
-- `GET /custom_layout` - Test custom handlebars layout
+## Views
 
-## Setup
+### Home View (Product List)
+- Product cards with basic information
+- Add to Cart functionality
+- Filtering and sorting controls
+- Pagination
+- Links to product details
 
-1. Install dependencies:
+### Product Detail View
+- Comprehensive product information
+- Add to Cart functionality
+- Back to products navigation
+- Stock status display
 
-```bash
-npm install
-```
+### Cart View
+- List of cart items with quantities
+- Individual item removal
+- Quantity adjustment
+- Cart total
+- Empty cart option
+- Continue shopping navigation
 
-2. Create a `.envrc` file with your MongoDB credentials:
-I use direnv tool to create environment variables when accessing local folder
-```
-export mongodb_user=your_username
-export mongodb_secret=your_password
-```
+## Technical Details
 
-3. Run the application:
-```bash
-npx nodemon app.js
-```
-or 
-```bash
-npm run dev
-```
+### Database
+- MongoDB with Mongoose ODM
+- Product and Cart models with references
+- Lean queries for performance
 
-## Technologies Used
+### Data Validation
+- Stock level checking
+- Quantity validation
+- Product existence verification
+- Cart existence verification
 
-- Express.js - Web framework
-- MongoDB/Mongoose - Database
-- Socket.IO - Real-time updates
-- Handlebars - Template engine
-- Node.js - Runtime environment
-
-## Features in Detail
-
-### Product Management
-- Complete CRUD operations for products
-- Stock tracking
-- Advanced filtering and sorting capabilities
-- Pagination for large product lists
-
-### Shopping Cart
-- Add/remove products
-- Update quantities
-- Stock validation
-- Total calculation
-- Quantity limits based on available stock
-
-### Real-time Updates
-- WebSocket integration for real-time product updates
-- Live product list updates
-
-### Filtering and Sorting
-- Filter products by:
-  - Category
-  - Price range
-  - Stock availability
-  - Status
-- Sort products by:
-  - Title
-  - Price
-  - Stock
-- Ascending or descending order
-- Pagination with configurable items per page
+### Error Handling
+- Product not found
+- Cart not found
+- Invalid quantities
+- Stock limitations
+- Database operation errors
 
 ## Project Structure
 
@@ -147,7 +141,71 @@ npm run dev
 │   └── db.js             # Database connection
 ├── app.js                # Main application file
 └── README.md
+```
 
+## Setup and Installation
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Create a `.env` file with your MongoDB credentials:
+```bash
+mongodb_user=your_username
+mongodb_secret=your_password
+```
+
+Note: You can also use `.envrc` for direnv if you prefer, with the following format:
+```bash
+export mongodb_user=your_username
+export mongodb_secret=your_password
+```
+
+3. Run the application:
+```bash
+npx nodemon app.js
+```
+or 
+```bash
+npm run dev
+```
+
+## Environment Variables
+Required environment variables that must be set in `.env` or `.envrc`:
+- `mongodb_user` - MongoDB Atlas username
+- `mongodb_secret` - MongoDB Atlas password
+
+These variables are used to construct the MongoDB connection string in the format:
+```
+mongodb+srv://${mongodb_user}:${mongodb_secret}@cluster0.nbmyio1.mongodb.net/entregaFinal
+```
+
+Note: The application port is currently hardcoded to 3000. To use a different port, you'll need to modify it directly in `app.js`.
+
+## Technologies Used
+
+- Express.js - Web framework
+- MongoDB/Mongoose - Database
+- Socket.IO - Real-time updates
+- Handlebars - Template engine
+- Node.js - Runtime environment
+
+## Dependencies
+
+```json
+{
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-handlebars": "^8.0.1",
+    "mongoose": "^8.14.3",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
 ```
 
 ## Example Queries
@@ -162,13 +220,4 @@ This will:
 - Price between $100 and $500
 - Sort by price (highest first)
 - Show first page
-- 10 items per page
-
-## Package Descriptions
-
-- **express**: Web application framework
-- **mongoose**: MongoDB object modeling tool
-- **express-handlebars**: Template engine for Express
-- **socket.io**: Real-time bidirectional event-based communication
-- **dotenv**: Environment variables management
-- **nodemon**: Development utility for automatic server restart 
+- 10 items per page 

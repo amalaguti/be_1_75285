@@ -7,14 +7,21 @@ const router = express.Router();
 // Get all carts
 router.get('/', async (req, res) => {
     try {
-        const carts = await cartModel.find().populate('products.product').lean();
-        res.render('carts', {
-            title: 'All Shopping Carts',
-            carts: carts
+        // Find the current cart or create one if it doesn't exist
+        let cart = await cartModel.findOne({}).populate('products.product').lean();
+        
+        if (!cart) {
+            cart = await cartModel.create({ products: [] });
+            cart = await cartModel.findById(cart._id).populate('products.product').lean();
+        }
+
+        res.render('cart', {
+            title: 'Shopping Cart',
+            cart: cart
         });
     } catch (error) {
-        console.error('Error retrieving carts:', error);
-        res.status(500).json({ error: 'Error retrieving carts' });
+        console.error('Error retrieving cart:', error);
+        res.status(500).json({ error: 'Error retrieving cart' });
     }
 });
 
@@ -37,11 +44,18 @@ router.get('/:cid', async (req, res) => {
     }
 });
 
-// Create new cart
+// Create new cart or get existing one
 router.post('/', async (req, res) => {
     try {
-        const newCart = await cartModel.create({ products: [] });
-        res.status(201).json(newCart);
+        // Try to find an existing cart first
+        let cart = await cartModel.findOne({});
+        
+        // If no cart exists, create a new one
+        if (!cart) {
+            cart = await cartModel.create({ products: [] });
+        }
+        
+        res.status(201).json(cart);
     } catch (error) {
         console.error('Error creating cart:', error);
         res.status(500).json({ error: 'Error creating cart' });

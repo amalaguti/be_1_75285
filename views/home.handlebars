@@ -2,8 +2,6 @@
 
 <h1>{{title}}</h1>
 
-{{> cart-selector}}
-
 <div class="controls-container">
     <!-- Filters -->
     <div class="filters">
@@ -102,21 +100,25 @@
 
 <script>
 async function addToCart(productId) {
-    const cartSelect = document.getElementById('cartSelector');
-    const cartId = cartSelect.value;
-    
-    if (!cartId) {
-        alert('Please select or create a cart first');
-        return;
-    }
-
     try {
-        const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+        // First, try to find an existing cart or create a new one
+        const cartResponse = await fetch('/api/carts', {
+            method: 'POST'
+        });
+
+        if (!cartResponse.ok) {
+            throw new Error('Error creating/getting cart');
+        }
+
+        const cart = await cartResponse.json();
+        
+        // Now add the product to the cart
+        const response = await fetch(`/api/carts/${cart._id}/product/${productId}`, {
             method: 'POST'
         });
 
         if (response.ok) {
-            window.location.href = `/api/carts/${cartId}`;
+            window.location.href = `/api/carts/${cart._id}`;
         } else {
             const error = await response.json();
             alert(error.error || 'Error adding product to cart');

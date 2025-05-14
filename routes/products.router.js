@@ -3,25 +3,15 @@ import { productModel } from '../models/products.model.js';
 
 const router = express.Router();
 
-let app;
-
-export const setApp = (_app) => {
-    app = _app;
-};
-
 // Get all products
 router.get('/', async (req, res) => {
     try {
-        const products = await productModel.find({}).lean();  // Using .lean() to get plain JavaScript objects
+        const products = await productModel.find({}).lean();
         console.log('>>>>>> Products:', products);
-        if (app) {
-            res.render("home", { 
-                title: "Entrega Final",
-                productos: products
-            });
-        } else {
-            res.status(500).json({ error: 'Rendering not configured' });
-        }
+        res.render("home", { 
+            title: "Entrega Final",
+            productos: products
+        });
     } catch (error) {
         console.error('Error retrieving products:', error);
         res.status(500).json({ error: 'Error retrieving products' });

@@ -1,6 +1,69 @@
 <link rel="stylesheet" href="/css/style.css">
 
 <h1>{{title}}</h1>
+
+<div class="controls-container">
+    <!-- Filters -->
+    <div class="filters">
+        <h3>Filters</h3>
+        <form id="filterForm" method="GET">
+            <div class="filter-group">
+                <label for="category">Category:</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    {{#each filters.categories}}
+                        <option value="{{this}}" {{#if (equals this ../filters.currentCategory)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="minPrice">Min Price:</label>
+                <input type="number" name="minPrice" id="minPrice" value="{{filters.minPrice}}">
+            </div>
+
+            <div class="filter-group">
+                <label for="maxPrice">Max Price:</label>
+                <input type="number" name="maxPrice" id="maxPrice" value="{{filters.maxPrice}}">
+            </div>
+
+            <div class="filter-group">
+                <label for="stock">Stock:</label>
+                <select name="stock" id="stock">
+                    <option value="">All</option>
+                    <option value="available" {{#if (equals filters.stock "available")}}selected{{/if}}>In Stock</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">Status:</label>
+                <select name="status" id="status">
+                    <option value="">All</option>
+                    <option value="true" {{#if (equals filters.status "true")}}selected{{/if}}>Active</option>
+                    <option value="false" {{#if (equals filters.status "false")}}selected{{/if}}>Inactive</option>
+                </select>
+            </div>
+
+            <!-- Sorting -->
+            <div class="filter-group">
+                <label for="sort">Sort By:</label>
+                <select name="sort" id="sort">
+                    <option value="title" {{#if (equals sorting.field "title")}}selected{{/if}}>Title</option>
+                    <option value="price" {{#if (equals sorting.field "price")}}selected{{/if}}>Price</option>
+                    <option value="stock" {{#if (equals sorting.field "stock")}}selected{{/if}}>Stock</option>
+                </select>
+                <select name="order" id="order">
+                    <option value="asc" {{#if (equals sorting.order "asc")}}selected{{/if}}>Ascending</option>
+                    <option value="desc" {{#if (equals sorting.order "desc")}}selected{{/if}}>Descending</option>
+                </select>
+            </div>
+
+            <button type="submit" class="apply-filters-btn">Apply Filters</button>
+            <button type="button" class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+        </form>
+    </div>
+</div>
+
 <div class="products-container">
     {{#each productos}}
         <div class="product-card">
@@ -18,3 +81,53 @@
         </div>
     {{/each}}
 </div>
+
+<!-- Pagination -->
+{{#if pagination}}
+<div class="pagination">
+    {{#if pagination.hasPrevPage}}
+        <a href="?page={{pagination.prevPage}}&limit={{limit}}&sort={{sorting.field}}&order={{sorting.order}}" class="page-link">&laquo; Previous</a>
+    {{/if}}
+    
+    <span class="page-info">
+        Page {{pagination.currentPage}} of {{pagination.totalPages}}
+        ({{pagination.totalProducts}} products)
+    </span>
+
+    {{#if pagination.hasNextPage}}
+        <a href="?page={{pagination.nextPage}}&limit={{limit}}&sort={{sorting.field}}&order={{sorting.order}}" class="page-link">Next &raquo;</a>
+    {{/if}}
+</div>
+{{/if}}
+
+<script>
+function clearFilters() {
+    document.getElementById('category').value = '';
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+    document.getElementById('stock').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('sort').value = 'title';
+    document.getElementById('order').value = 'asc';
+    document.getElementById('filterForm').submit();
+}
+
+// Preserve filter parameters in pagination links
+document.addEventListener('DOMContentLoaded', function() {
+    const paginationLinks = document.querySelectorAll('.pagination a');
+    paginationLinks.forEach(link => {
+        const url = new URL(link.href);
+        const currentUrl = new URL(window.location.href);
+        
+        // Copy current filter parameters
+        ['category', 'minPrice', 'maxPrice', 'stock', 'status', 'sort', 'order'].forEach(param => {
+            const value = currentUrl.searchParams.get(param);
+            if (value) {
+                url.searchParams.set(param, value);
+            }
+        });
+        
+        link.href = url.toString();
+    });
+});
+</script>

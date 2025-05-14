@@ -3,14 +3,79 @@ import { productModel } from '../models/products.model.js';
 
 const router = express.Router();
 
-// Get all products
+// Get all products with sorting, filtering and pagination
 router.get('/', async (req, res) => {
     try {
-        const products = await productModel.find({}).lean();
-        console.log('>>>>>> Products:', products);
+        // Pagination parameters
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // Sorting parameters
+        const sortField = req.query.sort || 'title';
+        const sortOrder = req.query.order === 'desc' ? -1 : 1;
+        const sortOptions = { [sortField]: sortOrder };
+
+        // Filtering parameters
+        const filterOptions = {};
+        if (req.query.category) {
+            filterOptions.category = req.query.category;
+        }
+        if (req.query.minPrice) {
+            filterOptions.price = { $gte: parseFloat(req.query.minPrice) };
+        }
+        if (req.query.maxPrice) {
+            filterOptions.price = { ...filterOptions.price, $lte: parseFloat(req.query.maxPrice) };
+        }
+        if (req.query.stock === 'available') {
+            filterOptions.stock = { $gt: 0 };
+        }
+        if (req.query.status) {
+            filterOptions.status = req.query.status === 'true';
+        }
+
+        // Execute query with all parameters
+        const products = await productModel.find(filterOptions)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // Get total count for pagination
+        const totalProducts = await productModel.countDocuments(filterOptions);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        // Get unique categories using aggregation instead of distinct
+        const categoriesResult = await productModel.aggregate([
+            { $group: { _id: "$category" } },
+            { $sort: { _id: 1 } }
+        ]);
+        const categories = categoriesResult.map(cat => cat._id).filter(Boolean);
+
         res.render("home", { 
             title: "Entrega Final",
-            productos: products
+            productos: products,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                nextPage: page + 1,
+                prevPage: page - 1,
+                totalProducts
+            },
+            filters: {
+                categories,
+                currentCategory: req.query.category,
+                minPrice: req.query.minPrice,
+                maxPrice: req.query.maxPrice,
+                stock: req.query.stock,
+                status: req.query.status
+            },
+            sorting: {
+                field: sortField,
+                order: req.query.order || 'asc'
+            }
         });
     } catch (error) {
         console.error('Error retrieving products:', error);

@@ -258,4 +258,100 @@ h1 {
 .quantity-controls button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+}
+
+/* Controls Container */
+.controls-container {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Filters */
+.filters {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.filters h3 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    min-width: 100px;
+    color: #666;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1;
+}
+
+.apply-filters-btn,
+.clear-filters-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.apply-filters-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.clear-filters-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.apply-filters-btn:hover {
+    background-color: #45a049;
+}
+
+.clear-filters-btn:hover {
+    background-color: #da190b;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.page-link {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.page-link:hover {
+    background-color: #45a049;
+}
+
+.page-info {
+    color: #666;
+    font-size: 0.9em;
 } 

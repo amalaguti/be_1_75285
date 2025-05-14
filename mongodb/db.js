@@ -3,13 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const uri = `mongodb+srv://${process.env.mongodb_user}:${process.env.mongodb_secret}@cluster0.nbmyio1.mongodb.net/entregaFinal?retryWrites=true&w=majority&appName=Cluster0`;
-const clientOptions = { 
-    serverApi: { 
-        version: '1', 
-        strict: true, 
-        deprecationErrors: true 
-    }
-};
+
+// Removed strict API version requirement
+const clientOptions = { };
 
 export const connectDB = async () => {
     try {

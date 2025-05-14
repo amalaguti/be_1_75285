@@ -80,7 +80,8 @@ router.get('/', async (req, res) => {
             sorting: {
                 field: sortField,
                 order: req.query.order || 'asc'
-            }
+            },
+            limit: limit.toString()
         });
     } catch (error) {
         console.error('Error retrieving products:', error);

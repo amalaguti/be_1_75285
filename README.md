@@ -7,6 +7,7 @@ This is a Node.js/Express application that implements e-commerce functionality w
 ### Products
 - Complete CRUD operations for products
 - View all products with pagination
+- Customizable products per page display (1, 3, 5, 10, or 50 items)
 - Filter products by:
   - Category
   - Price range
@@ -48,7 +49,7 @@ This is a Node.js/Express application that implements e-commerce functionality w
 - `GET /api/products` - View all products
   - Query Parameters:
     - `page`: Page number (default: 1)
-    - `limit`: Items per page (default: 10)
+    - `limit`: Items per page (1, 3, 5, 10, or 50; default: 10)
     - `sort`: Sort field (title, price, stock)
     - `order`: Sort order (asc, desc)
     - `category`: Filter by category

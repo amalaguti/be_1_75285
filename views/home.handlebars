@@ -8,11 +8,44 @@
     opacity: 0.7;
     border: 1px solid #999999;
 }
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+    display: none;
+}
+
+.cart-controls {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.check-cart-btn {
+    background-color: #2196F3;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.check-cart-btn:hover {
+    background-color: #1976D2;
+}
 </style>
 
 <h1>{{title}}</h1>
 
+<div id="success-message" class="success-message" style="display: none;"></div>
+
 <div class="controls-container">
+    <div class="cart-controls">
+        <a href="/api/carts" class="check-cart-btn">Check Cart</a>
+    </div>
     <!-- Filters -->
     <div class="filters">
         <h3>Filters</h3>
@@ -113,6 +146,15 @@
 {{/if}}
 
 <script>
+function showSuccess(message) {
+    const successDiv = document.getElementById('success-message');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 3000);
+}
+
 function handleProductClick(productId, stock, title) {
     // Convert stock to number and handle undefined/null
     stock = Number(stock) || 0;
@@ -122,10 +164,10 @@ function handleProductClick(productId, stock, title) {
         return;
     }
 
-    addToCart(productId, stock);
+    addToCart(productId, stock, title);
 }
 
-async function addToCart(productId, stock) {
+async function addToCart(productId, stock, title) {
     try {
         // First, try to find an existing cart or create a new one
         const cartResponse = await fetch('/api/carts', {
@@ -144,7 +186,7 @@ async function addToCart(productId, stock) {
         });
 
         if (response.ok) {
-            window.location.href = `/api/carts/${cart._id}`;
+            showSuccess(`"${title}" added to cart successfully!`);
         } else {
             const error = await response.json();
             alert(error.error || 'Error adding product to cart');

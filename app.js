@@ -36,10 +36,21 @@ console.log(uri);
 console.log(clientOptions);
 connectDB();
 
+// Home redirects to products
+app.get('/', (req, res) => {
+    res.redirect('/api/products');
+});
 
 
-// Home shows all products
-app.get('/', async (req, res) => {
+// Routes
+setApp(app);
+app.use('/api/products', productsRouter);
+
+// /api/realtimeproducts uses websockets
+app.use('/api/realtimeproducts', realTimeProductsRouter);
+
+// Entrega shows all products from fs ()
+app.get('/entrega2', async (req, res) => {
     try {
         const productos = await getProducts();
         res.render("home", { 
@@ -58,14 +69,6 @@ app.get('/custom_layout', (req, res) => {
         title: "Custom Layout Test",
     });
 });
-
-// Routes
-setApp(app);
-app.use('/api/products', productsRouter);
-
-// /api/realtimeproducts uses websockets
-app.use('/api/realtimeproducts', realTimeProductsRouter);
-
 
 // Create HTTP server and initialize Socket.IO
 const httpServer = createServer(app);

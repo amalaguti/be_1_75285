@@ -1,3 +1,6 @@
+// This file is used to manage the products in the fs
+// This file was part of a previous task and is no longer needed
+// It is kept here for reference
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

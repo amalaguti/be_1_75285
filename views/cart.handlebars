@@ -1,0 +1,48 @@
+<link rel="stylesheet" href="/css/style.css">
+
+<h1>{{title}}</h1>
+
+<div class="cart-container">
+    {{#if cart.products.length}}
+        {{#each cart.products}}
+            <div class="cart-item">
+                <h3>{{this.product.title}}</h3>
+                <p>Code: {{this.product.code}}</p>
+                <p class="price">Price: ${{this.product.price}}</p>
+                <p class="quantity">Quantity: {{this.quantity}}</p>
+                <p class="subtotal">Subtotal: ${{multiply this.product.price this.quantity}}</p>
+                <button onclick="removeFromCart('{{this.product._id}}')" class="remove-btn">Remove</button>
+                <div class="quantity-controls">
+                    <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)">-</button>
+                    <span>{{this.quantity}}</span>
+                    <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)">+</button>
+                </div>
+            </div>
+        {{/each}}
+        <div class="cart-total">
+            <h3>Total: ${{cartTotal cart.products}}</h3>
+        </div>
+    {{else}}
+        <p>Your cart is empty</p>
+    {{/if}}
+</div>
+
+<script>
+function removeFromCart(productId) {
+    fetch(`/api/carts/remove/${productId}`, {
+        method: 'DELETE'
+    }).then(() => window.location.reload());
+}
+
+function updateQuantity(productId, newQuantity) {
+    if (newQuantity < 1) return;
+    
+    fetch(`/api/carts/update/${productId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: newQuantity })
+    }).then(() => window.location.reload());
+}
+</script> 

@@ -8,6 +8,7 @@ import { dirname } from 'path';
 import { createServer } from 'http';
 import { connectDB, uri, clientOptions } from './mongodb/db.js';
 import productsRouter from './routes/products.router.js';
+import cartRouter from './routes/cart.router.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -25,7 +26,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // handlebars
-app.engine('handlebars', handlebars.engine());
+app.engine('handlebars', handlebars.engine({
+    helpers: {
+        multiply: (a, b) => a * b,
+        cartTotal: (products) => {
+            return products.reduce((total, item) => {
+                return total + (item.product.price * item.quantity);
+            }, 0);
+        }
+    }
+}));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'handlebars');
 
@@ -44,6 +54,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/products', productsRouter);
+app.use('/api/carts', cartRouter);
 
 // /api/realtimeproducts uses websockets
 app.use('/api/realtimeproducts', realTimeProductsRouter);

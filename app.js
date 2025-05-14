@@ -33,7 +33,8 @@ app.engine('handlebars', handlebars.engine({
             return products.reduce((total, item) => {
                 return total + (item.product.price * item.quantity);
             }, 0);
-        }
+        },
+        equals: (a, b) => a === b
     }
 }));
 app.set('views', __dirname + '/views');

@@ -2,6 +2,8 @@
 
 <h1>{{title}}</h1>
 
+<div id="error-message" class="error-message" style="display: none;"></div>
+
 <div class="cart-container">
     {{#if cart.products.length}}
         {{#each cart.products}}
@@ -9,13 +11,13 @@
                 <h3>{{this.product.title}}</h3>
                 <p>Code: {{this.product.code}}</p>
                 <p class="price">Price: ${{this.product.price}}</p>
-                <p class="quantity">Quantity: {{this.quantity}}</p>
+                <p class="quantity">Quantity: {{this.quantity}} ({{this.product.stock}} available)</p>
                 <p class="subtotal">Subtotal: ${{multiply this.product.price this.quantity}}</p>
                 <button onclick="removeFromCart('{{this.product._id}}')" class="remove-btn">Remove</button>
                 <div class="quantity-controls">
                     <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)">-</button>
                     <span>{{this.quantity}}</span>
-                    <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)">+</button>
+                    <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)" {{#if (equals this.quantity this.product.stock)}}disabled{{/if}}>+</button>
                 </div>
             </div>
         {{/each}}
@@ -28,10 +30,20 @@
 </div>
 
 <script>
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 3000);
+}
+
 function removeFromCart(productId) {
     fetch(`/api/carts/remove/${productId}`, {
         method: 'DELETE'
-    }).then(() => window.location.reload());
+    }).then(() => window.location.reload())
+    .catch(error => showError('Error removing item from cart'));
 }
 
 function updateQuantity(productId, newQuantity) {
@@ -43,6 +55,15 @@ function updateQuantity(productId, newQuantity) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ quantity: newQuantity })
-    }).then(() => window.location.reload());
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
+        }
+        window.location.reload();
+    })
+    .catch(error => showError(error.message));
 }
 </script> 

@@ -74,8 +74,8 @@ npm install
 2. Create a `.envrc` file with your MongoDB credentials:
 I use direnv tool to create environment variables when accessing local folder
 ```
-mongodb_user=your_username
-mongodb_secret=your_password
+export mongodb_user=your_username
+export mongodb_secret=your_password
 ```
 
 3. Run the application:

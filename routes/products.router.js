@@ -12,7 +12,7 @@ export const setApp = (_app) => {
 // Get all products
 router.get('/', async (req, res) => {
     try {
-        const products = await productModel.find({});
+        const products = await productModel.find({}).lean();  // Using .lean() to get plain JavaScript objects
         console.log('>>>>>> Products:', products);
         if (app) {
             res.render("home", { 

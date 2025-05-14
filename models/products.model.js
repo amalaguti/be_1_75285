@@ -14,7 +14,15 @@ const productSchema = new mongoose.Schema({
     thumbnails: { type: [String], default: [] }
 });
 
-// Create a compound index for better query performance
+// Create index for code field which serves as a business identifier
 productSchema.index({ code: 1 });
+
+// Transform for JSON representation
+productSchema.set('toJSON', {
+    transform: function(doc, ret) {
+        ret.mongoId = ret._id; // Rename _id to mongoId for clarity
+        return ret;
+    }
+});
 
 export const productModel = mongoose.model(productsCollection, productSchema); 

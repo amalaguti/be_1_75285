@@ -8,12 +8,12 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         // Find the current cart or create one if it doesn't exist
-        let cart = await cartModel.findOne({}).populate('products.product').lean();
+        let cart = await cartModel.findOne({});
         
         if (!cart) {
             cart = await cartModel.create({ products: [] });
-            cart = await cartModel.findById(cart._id).populate('products.product').lean();
         }
+        cart = await cart.populate('products.product').lean();
 
         res.render('cart', {
             title: 'Shopping Cart',

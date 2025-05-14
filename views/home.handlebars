@@ -58,7 +58,7 @@
 <div class="controls-container">
     <div class="cart-controls">
         <span id="cartIdDisplay" class="cart-id-display"></span>
-        <a href="/api/carts" class="check-cart-btn">Check Cart</a>
+        <a href="#" id="checkCartBtn" class="check-cart-btn">Check Cart</a>
     </div>
     <!-- Filters -->
     <div class="filters">
@@ -224,6 +224,8 @@ async function displayCurrentCartId() {
         if (response.ok) {
             const cart = await response.json();
             document.getElementById('cartIdDisplay').textContent = `Cart ID: ${cart._id}`;
+            // Update Check Cart button href
+            document.getElementById('checkCartBtn').href = `/api/carts/${cart._id}`;
         }
     } catch (error) {
         console.error('Error getting cart ID:', error);

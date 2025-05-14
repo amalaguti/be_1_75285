@@ -72,10 +72,14 @@
             <p>Description: {{this.description}}</p>
             <p class="price">Price: ${{this.price}}</p>
             <p>Status: {{this.status}}</p>
-            <p class="stock">Stock: {{this.stock}}</p>
+            <p class="stock">Stock: {{#if this.stock}}{{this.stock}}{{else}}0{{/if}}</p>
             <p class="category">Category: {{this.category}}</p>
             <p>Thumbnails: {{this.thumbnails}}</p>
-            <button onclick="addToCart('{{this._id}}')" class="add-to-cart-btn">Add to Cart</button>
+            <button onclick="addToCart('{{this._id}}', {{#if this.stock}}{{this.stock}}{{else}}0{{/if}})" 
+                    class="add-to-cart-btn" 
+                    {{#unless this.stock}}disabled{{/unless}}>
+                {{#if this.stock}}Add to Cart{{else}}Out of Stock{{/if}}
+            </button>
         </div>
     {{/each}}
 </div>
@@ -99,7 +103,15 @@
 {{/if}}
 
 <script>
-async function addToCart(productId) {
+async function addToCart(productId, stock) {
+    // Convert stock to number and handle undefined/null
+    stock = Number(stock) || 0;
+    
+    if (stock < 1) {
+        alert('Sorry, this product is out of stock');
+        return;
+    }
+
     try {
         // First, try to find an existing cart or create a new one
         const cartResponse = await fetch('/api/carts', {

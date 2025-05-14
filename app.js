@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createServer } from 'http';
 import { connectDB, uri, clientOptions } from './mongodb/db.js';
-import productsRouter from './routes/products.router.js';
+import productsRouter, { setApp } from './routes/products.router.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -60,6 +60,7 @@ app.get('/custom_layout', (req, res) => {
 });
 
 // Routes
+setApp(app);
 app.use('/api/products', productsRouter);
 
 // /api/realtimeproducts uses websockets

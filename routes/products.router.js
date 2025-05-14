@@ -1,18 +1,27 @@
 import express from 'express';
-import { productModel } from '../models/product.model.js';
+import { productModel } from '../models/products.model.js';
 
 const router = express.Router();
+
+let app;
+
+export const setApp = (_app) => {
+    app = _app;
+};
 
 // Get all products
 router.get('/', async (req, res) => {
     try {
         const products = await productModel.find({});
-        //res.json(products);
         console.log('>>>>>> Products:', products);
-        res.render("home", { 
-            title: "Entrega Final",
-            productos: products
-        });
+        if (app) {
+            res.render("home", { 
+                title: "Entrega Final",
+                productos: products
+            });
+        } else {
+            res.status(500).json({ error: 'Rendering not configured' });
+        }
     } catch (error) {
         console.error('Error retrieving products:', error);
         res.status(500).json({ error: 'Error retrieving products' });

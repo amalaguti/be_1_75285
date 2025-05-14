@@ -6,6 +6,7 @@
 
 <div class="cart-container">
     {{#if cart.products.length}}
+        <input type="hidden" id="cartId" value="{{cart._id}}">
         {{#each cart.products}}
             <div class="cart-item">
                 <h3>{{this.product.title}}</h3>
@@ -40,16 +41,26 @@ function showError(message) {
 }
 
 function removeFromCart(productId) {
-    fetch(`/api/carts/remove/${productId}`, {
+    const cartId = document.getElementById('cartId').value;
+    fetch(`/api/carts/${cartId}/product/${productId}`, {
         method: 'DELETE'
-    }).then(() => window.location.reload())
-    .catch(error => showError('Error removing item from cart'));
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
+        }
+        window.location.reload();
+    })
+    .catch(error => showError(error.message || 'Error removing item from cart'));
 }
 
 function updateQuantity(productId, newQuantity) {
     if (newQuantity < 1) return;
     
-    fetch(`/api/carts/update/${productId}`, {
+    const cartId = document.getElementById('cartId').value;
+    fetch(`/api/carts/${cartId}/product/${productId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -62,8 +73,11 @@ function updateQuantity(productId, newQuantity) {
                 throw new Error(err.error);
             });
         }
+        return response.json();
+    })
+    .then(() => {
         window.location.reload();
     })
-    .catch(error => showError(error.message));
+    .catch(error => showError(error.message || 'Error updating quantity'));
 }
 </script> 
